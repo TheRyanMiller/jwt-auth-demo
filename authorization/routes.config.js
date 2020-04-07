@@ -11,6 +11,7 @@ exports.routesConfig = function (app) {
 
     app.post('/auth/refresh', [
         AuthValidationMiddleware.validJWTNeeded,
+        AuthValidationMiddleware.unexpiredJWTNeeded,
         AuthValidationMiddleware.verifyRefreshBodyField,
         AuthValidationMiddleware.validRefreshNeeded,
         AuthorizationController.login

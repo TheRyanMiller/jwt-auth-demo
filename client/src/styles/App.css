@@ -4,59 +4,31 @@ html, body, #root, #root>div {
     height: 100%;
   }
   
-  #root {
-    background-color: #282c34;
-  }
-  
-  .App {
-    text-align: center;
-    background-color: #282c34;
-  }
-  
-  .content-table .content-row:hover {
-    background-color: #f8f8e9;
-    border-collapse: separate;
-  }
-  
-  .App-header {
-    background-color: #282c34;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-  }
-  
-  td, th {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-  
-  .App-link {
-    color: #61dafb;
-  }
-  
-  .acctBox {
-    margin: auto 0;
-    width: 300px;
-    background-color: #454c58;
-  }
-  
-  .centerFlex{
-    text-align: center;
-    vertical-align: middle;
-    margin: auto 0px;
-    align-items: center;
-    display: block;
-  }
-  .max{
-    width: 100%;
-  }
-  
-  @keyframes App-logo-spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  
+#root {
+  background-color: #282c34;
+}
+
+.App {
+  text-align: center;
+  background-color: #282c34;
+}
+Button {
+  max-width: 320px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.sideMargins {
+  max-width: 320px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.customModal {
+    background-color: #23272e;
+    color: rgb(255, 255, 255);
+}
+
+.customOverlay {
+  background-color: #23272e;
+  color: rgb(255, 255, 255);
+}

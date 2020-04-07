@@ -1,10 +1,9 @@
-# REST API Tutorial
+# JWT Auth Demo
 
-This sample is published as part of the blog article at www.toptal.com/blog:
+This demo project is based on an [article published at TopTal](https://www.toptal.com/nodejs/secure-rest-api-in-nodejs). The backend code is pulled from [this GitHub repo](https://github.com/makinhs/rest-api-tutorial) and expanded upon by me to manage user authentication in a minimal front-end app.
 
-- https://www.toptal.com/nodejs/secure-rest-api-in-nodejs
+- 
 
-Visit www.toptal.com/blog and subscribe to our newsletter to read great posts
 
 ## Before using
 

@@ -31,7 +31,19 @@ exports.validJWTNeeded = (req, res, next) => {
                 return res.status(401).send();
             } else {
                 req.jwt = jwt.verify(authorization[1], secret);
-                return next();
+                console.log("~~~~~~~~~~~")
+                console.log(req.jwt)
+                console.log("~~~~~~~~~~~")
+                let current_time = new Date().getTime(); //Time to the second
+                console.log(current_time)
+                console.log(req.jwt.exp)
+                if(current_time < req.jwt.exp){
+                    return next();
+                }
+                else{
+                    return res.status(401).send("Invalid Token!");
+                }
+                
             }
 
         } catch (err) {

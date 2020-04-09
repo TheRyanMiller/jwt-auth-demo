@@ -24,30 +24,49 @@ exports.validRefreshNeeded = (req, res, next) => {
 
 
 exports.validJWTNeeded = (req, res, next) => {
+    let jwtObj;
     if (req.headers['authorization']) {
         try {
             let authorization = req.headers['authorization'].split(' ');
             if (authorization[0] !== 'Bearer') {
                 return res.status(401).send();
             } else {
+                jwtObj = jwt.decode(authorization[1])
                 req.jwt = jwt.verify(authorization[1], secret);
-                console.log("~~~~~~~~~~~")
-                console.log(req.jwt)
-                console.log("~~~~~~~~~~~")
-                let current_time = new Date().getTime(); //Time to the second
-                console.log(current_time)
-                console.log(req.jwt.exp)
-                if(current_time < req.jwt.exp){
-                    return next();
-                }
-                else{
-                    return res.status(401).send("Invalid Token!");
-                }
-                
+                return next();
             }
 
         } catch (err) {
-            return res.status(403).send();
+            res.statusMessage="TOKEN EXPIRED!!"
+            return res.status(403).send({error:"TOKEN EXPIRED!!!"});
+        }
+    } else {
+        return res.status(401).send();
+    }
+};
+
+exports.signedButExpiredJWTNeeded = (req, res, next) => {
+    let authorization;
+    if (req.headers['authorization']) {
+        try {
+            authorization = req.headers['authorization'].split(' ');
+            if (authorization[0] !== 'Bearer') {
+                return res.status(401).send();
+            } else {
+                req.jwt = jwt.verify(authorization[1], secret);
+                
+                return next();
+            }
+
+        } catch (err) {
+            if(err.message === "jwt expired"){
+                req.jwt = jwt.decode(authorization[1], secret);
+                return next();
+            }
+            else{
+                return res.status(403).send({error:"TOKEN EXPIRED!!!"});
+            }
+            
         }
     } else {
         return res.status(401).send();

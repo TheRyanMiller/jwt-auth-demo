@@ -5,8 +5,6 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 
 import './App.css';
 
-
-
 const App = (props) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   
@@ -38,7 +36,6 @@ const App = (props) => {
   const handleLogout = () => {
     localStorage.removeItem("jwt-access-token");
     localStorage.removeItem("jwt-refresh-token");
-    localStorage.removeItem("refresh-need-date");
     setIsLoggedIn(false);
   }
 

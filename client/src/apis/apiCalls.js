@@ -1,44 +1,60 @@
 import axios from 'axios';
 
+const api = () => {
 
-let restApi = axios.create({
-    baseURL: "http://localhost:3600",//process.env.REACT_APP_API_URL,
-    timeout: 10000,
-    headers: { Authorization: `Bearer ${token}` }
-});
-   
-restApi.interceptors.request.use(config => {
-    console.log("REQUEST SENT");
-    let token = localStorage.getItem("jwt-access-token");
-    config.headers.Authorization = `Bearer ${token}`;
-    config.headers['Content-Type'] = 'application/json';
-    return config
-})
+    //Setup axios instance
+    let restApi = axios.create({
+        baseURL: "http://localhost:3600",//process.env.REACT_APP_API_URL,
+        timeout: 10000
+    });
 
-restApi.interceptors.response.use((response) => {
-    return response
-}, 
-(error) => {
-    const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
-        return axios.post('/auth/token',
-            {
-              "refresh_token": localStorage.getItem("jwt-refresh-token")
-            })
-            .then(res => {
-                if (res.status === 201) {
-                    // 1) put token to LocalStorage
-                    localStorageService.setToken(res.data);
- 
-                    // 2) Change Authorization header
-                    axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorageService.getAccessToken();
- 
-                    // 3) return originalRequest object with Axios.
-                    return axios(originalRequest);
-                }
-            })
+    //If access-token is available in storage, setup request interceptor on our instance
+    if(localStorage.getItem("jwt-access-token")){
+        restApi.interceptors.request.use(config => {
+            config.headers.Authorization = "Bearer "+localStorage.getItem("jwt-access-token");
+            config.headers['Content-Type'] = 'application/json';
+            return config
+        })
     }
 
+    //setup error interceptor on our instnace
+    restApi.interceptors.response.use((response) => {
+        return response //Let normal responses pass through
+    }, (error) => {
+            if (error.response.status === 401 || error.response.status === 403) {
+                let instance = axios.create({
+                    baseURL: "http://localhost:3600",
+                    headers: { Authorization: "Bearer "+localStorage.getItem("jwt-access-token") }
+                });
+                console.log("Token expiry error intercepted. Sending request for new access token.")
+                //Let's try to use our refresh token to get a new access token.
+                return instance.post('/auth/refresh',
+                    {"refresh_token": localStorage.getItem("jwt-refresh-token")})
+                    .then(resp => {
+                        if (resp && resp.status === 201) {
+                            console.log("Success! Obtained new access token. Now repeating original request.")
+                            // put new tokens in LocalStorage
+                            localStorage.setItem("jwt-refresh-token",resp.data.refreshToken);
+                            localStorage.setItem("jwt-access-token",resp.data.accessToken);
+                            // 2) Change Authorization header
+                            axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem("jwt-access-token");
+                            // 3) return originalRequest object with Axios.
+                            return restApi.get("/users").then(resp=>{
+                              return resp
+                            });
+                        }
+                    }).catch(err=>{
+                        //Error, redirect to login
+                        console.log("Error requesting new access token. Redirecting to /login.")
+                        window.location.href = "/login";
+                    })
+            }
+            else{
+                //redirect to login
+                window.location.href = "/login";
+            }
+        })
+    return restApi;
+}
 
-export { restApi };
+export { api };

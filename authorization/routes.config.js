@@ -10,8 +10,7 @@ exports.routesConfig = function (app) {
     ]);
 
     app.post('/auth/refresh', [
-        AuthValidationMiddleware.validJWTNeeded,
-        AuthValidationMiddleware.unexpiredJWTNeeded,
+        AuthValidationMiddleware.signedButExpiredJWTNeeded,  // will fail verification because JWT is expired.
         AuthValidationMiddleware.verifyRefreshBodyField,
         AuthValidationMiddleware.validRefreshNeeded,
         AuthorizationController.login

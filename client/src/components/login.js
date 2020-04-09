@@ -30,12 +30,10 @@ const Login = (props) =>{
       headers: {}
     });
     instance.post('/auth', {email, password}).then((resp) => {   
-      console.log(resp)
         setServerReply(JSON.stringify(resp, null, 4));
         if(resp.data.accessToken && resp.data.refreshToken){
           localStorage.setItem("jwt-access-token",resp.data.accessToken) // write to local storage
           localStorage.setItem("jwt-refresh-token",resp.data.refreshToken) // write to local storage
-          localStorage.setItem("refresh-need-date", new Date().getTime() / 1000 + resp.data.expires_in);
           props.handleLogin(true);
           history.push("/");
         }

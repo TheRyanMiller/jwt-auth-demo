@@ -5,58 +5,94 @@ import 'react-responsive-modal/styles.css';
 import { Modal } from 'react-responsive-modal';
 import axios from 'axios';
 import "../styles/App.css";
+import { api } from "../apis/apiCalls";
+var jwt = require('jsonwebtoken');
 
 const Home = (props) =>{
 
     const [userList, setUserList] = useState("");
     const [showModal, setShowModal] = useState(false);
+    const [myJwt, setMyJwt] = useState({});
+    const [myEncodedJwt, setMyEncodedJwt] = useState("")
+    const [timeLeft, setTimeLeft] = useState(0);
+    const [tokenExpired, setTokenExpired] = useState(0);
 
-  const divStyle = {
-    fontSize: "14px",
-    color: "white",
-    textAlign: "left"
-  }
+    useEffect(() => {
+        setTimeout(() => {
+            if(localStorage.getItem("jwt-access-token")){
+                let t = calculateTimeLeft(jwt.decode(localStorage.getItem("jwt-access-token")));
+                setTimeLeft(t);
+                if(t < 0 && !tokenExpired){    
+                    setTokenExpired(true);
+                }
+            }
+        }, 1000);
+    });
 
-  let logoutButton = (
-    <Button block onClick={props.handleLogout} >
-        Logout!
-    </Button>
-  )
+    useEffect(() =>{
+        setMyEncodedJwt(localStorage.getItem("jwt-access-token"));
+        setMyJwt(jwt.decode(localStorage.getItem("jwt-access-token")))
+    },[])
 
-  const closeModal = () =>{
-    setShowModal(false);
+    const divStyle = {
+        fontSize: "14px",
+        color: "white",
+        textAlign: "left",
+        width: "600px"
+    }
+
+    let logoutButton = (
+        <div className="center">
+            <Button block onClick={props.handleLogout} >
+                Logout!
+            </Button>
+        </div>
+    )
+
+    const closeModal = () =>{
+        setShowModal(false);
     }
 
     let handleGetUsers = () => {
-        setUserList("")
-        let token = localStorage.getItem("jwt-access-token")
-        let instance = axios.create({
-            baseURL: "http://localhost:3600",//process.env.REACT_APP_API_URL,
-            timeout: 10000,
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        instance.get("/users").then(resp=>{
-            console.log(resp)
-            setUserList(JSON.stringify(resp.data, null, 4));
-            setShowModal(true);
+        setUserList("");
+
+        api().get("/users").then(resp=>{
+            if(resp){
+                setUserList(JSON.stringify(resp.data, null, 4));
+                setShowModal(true);
+                setTokenExpired(false);
+                setMyJwt(jwt.decode(localStorage.getItem("jwt-access-token")))
+            }
         })
-  }
+        .catch(err=>{
+            console.log(err)
+        })
+    }
 
-  let protectedButtons = (
-    <div>
-        <Button onClick={()=>handleGetUsers()} className="sideMargins" variant="light">
-            Get Users!
-        </Button>
-        <Button className="sideMargins" variant="light">
-            Get Items!
-        </Button>
-    </div>
-  )
+    let protectedButtons = (
+        <div className="center">
+            <Button onClick={()=>handleGetUsers()} className="sideMargins" variant="light">
+                Get Users!
+            </Button>
+        </div>
+    )
 
+    const calculateTimeLeft = (myJwt) => {
+        return (toDateTime(myJwt.exp) / 1000 ) - (new Date().getTime() / 1000);
+    };
+
+    function toDateTime(secs) {
+        const d = new Date(0);
+        return d.setUTCSeconds(secs);
+    }
 
   return (<>
     <div className="App App-header">
-        
+        <pre style={divStyle}>{JSON.stringify(myJwt, null, 4)}</pre>
+        <p style={divStyle} className="center"> Seconds until token expired: {tokenExpired ? "0 - EXPIRED!" : timeLeft.toFixed(0)}</p><br />
+        <div className="wordWrap">
+            <p className="wordWrap">{myEncodedJwt}</p>
+        </div>
         <div style={divStyle}>
           { props.isLoggedIn ? protectedButtons : "" }
           <br /><br /><br />

@@ -22,3 +22,20 @@
   background-color: #23272e;
   color: rgb(255, 255, 255);
 }
+
+.center{
+  background-color: #282c34;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  color: white;
+  display: flex;
+}
+
+.wordWrap{
+  word-wrap: break-word;
+  font-size: 14px;
+  color: white;
+  text-align: center;
+  width: 500px;
+}
